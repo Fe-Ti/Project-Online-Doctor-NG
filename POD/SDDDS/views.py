@@ -39,11 +39,7 @@ def sddprocessor(slist, mode): # SET_OF_ITEMS = ALLOWING_SET - PROHIBITING_SET
         allowing_doc_set |= to_pk_set(models.Doctor.objects.filter(
                 allowing_diseases=i) # getting PK again
         )
-     
-        # ~ prohibiting_doc_set |= to_pk_set(models.Doctor.objects.filter(
-                # ~ prohibiting_diseases=i)
-        # ~ )
-    doctor_set = allowing_doc_set #- prohibiting_doc_set # substructing again
+    doctor_set = allowing_doc_set
     for i in doctor_set:
         dlist.append(models.Doctor.objects.get(pk=i).doctor_name)
     if mode == 'external':
@@ -66,9 +62,10 @@ def process_symptoms(request):
             result = sddprocessor(request.POST.getlist('slist'), 'internal')
             # TODO: add to db
             json_out = json.dumps(result['dlist'])[2:-2]
+            
+            print(json_out)
             return HttpResponseRedirect(reverse('sddds:results', args=(json_out,)))
-    return HttpResponseBadRequest('Not a POST request.') 
-    # say the user is too curious
+    return HttpResponseRedirect(reverse('sddds:index'))
 
 def results(request, doctors):
     doctors = json.loads('["'+doctors+'"]')

@@ -5,7 +5,7 @@ from .models import Category, Symptom, Disease, Doctor
 
 class SymptomAdmin(admin.ModelAdmin):
     fieldsets = [
-    (None,               {'fields': ['symptom_text','category']}),
+        (None,      {'fields': ['symptom_text','category']}),
     ]
     list_display = ('symptom_text','category')
     list_filter = ['category']
@@ -13,8 +13,8 @@ class SymptomAdmin(admin.ModelAdmin):
 
 class DiseaseAdmin(admin.ModelAdmin):
     fieldsets = [
-    (None,               {'fields': ['disease_name']}),
-    ('Симптомы',         {'fields': ['allowing_symptoms','prohibiting_symptoms']})
+        (None,          {'fields': ['disease_name']}),
+        ('Симптомы',    {'fields': ['allowing_symptoms','prohibiting_symptoms']})
     ]
     search_fields = ['disease_name']
     list_display = ['disease_name']
@@ -22,8 +22,8 @@ class DiseaseAdmin(admin.ModelAdmin):
     
 class DoctorAdmin(admin.ModelAdmin):
     fieldsets = [
-    (None,               {'fields': ['doctor_name']}),
-    ('Классы заболеваний',         {'fields': ['allowing_diseases']})
+        (None,                  {'fields': ['doctor_name']}),
+        ('Классы заболеваний',  {'fields': ['allowing_diseases']})
     ]
     search_fields = ['doctor_name']
 
