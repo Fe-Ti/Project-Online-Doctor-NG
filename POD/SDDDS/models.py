@@ -45,23 +45,19 @@ class Disease(models.Model):
 
 class Doctor(models.Model):
     doctor_name = models.CharField(max_length=100, unique=True, verbose_name="Специалист")
-    allowing_diseases = models.ManyToManyField(Disease, blank=True, verbose_name="Лечит", related_name='a_d')
-    # ~ prohibiting_diseases = models.ManyToManyField(Disease, blank=True, verbose_name="Не лечит", related_name='p_d')
+    triggering_diseases = models.ManyToManyField(Disease, blank=True, verbose_name="Лечит", related_name='a_d')
     
     def __str__(self):
         sa = ' '
-        temp_list = list(self.allowing_diseases.all())
+        temp_list = list(self.triggering_diseases.all())
         for i in temp_list:
             sa+= i.disease_name + SEPARATOR
-        # ~ sp = ' '
-        # ~ temp_list = list(self.prohibiting_diseases.all())
-        # ~ for i in temp_list:
-            # ~ sp+= i.disease_name + SEPARATOR
-        return self.doctor_name + B + sa[:-2] + E #M + sp[:-2] + 
+        return self.doctor_name + B + sa[:-2] + E
 
 
 
 class HistoryEntry(models.Model):
-	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Пользователь")
-	symptoms = models.CharField(max_length=1000, verbose_name="Введённые симптомы") 
-	result = models.CharField(max_length=1000, verbose_name="Рекомендованные специалисты")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Пользователь")
+    symptoms = models.TextField(verbose_name="Введённые симптомы") 
+    result = models.TextField(verbose_name="Рекомендованные специалисты")
+    date = models.DateTimeField(auto_now_add=True)
