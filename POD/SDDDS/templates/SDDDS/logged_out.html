@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+    <p>WTF, {{ user.username }}. Why are you there?</p>
+{% else %}
+    <p>Successfully logged out!</p>
+{% endif %}
+
+{% endblock %}

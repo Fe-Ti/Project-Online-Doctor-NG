@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}History{% endblock %}
+
+{% block content %}
+	<div>
+		<h3 class="label">{{ user.username }}, ниже представлена история Ваших запросов:</h6>
+	</div>
+	<ul class="startanime doctors">
+	{% for entry in entries %}
+	<li class="doctors">
+		<div class="block">
+			<p>Дата: {{ entry.date }}</p>
+			<div>
+				<p>Симптомы:</p>
+					{% for symptom in entry.symptoms.all %}
+						<label class="doctors">{{ symptom.symptom_text }}</label>
+					{% endfor %}
+			</div>
+			<div>
+				<p>Рекомендуемые специалисты:</p>
+					{% for result in entry.result.all %}
+						<label class="doctors">{{ result.doctor_name }}</label>
+					{% endfor %}
+			</div>
+		</div>
+	</li>
+	{% endfor %}
+	</ul>
+{% endblock %}
