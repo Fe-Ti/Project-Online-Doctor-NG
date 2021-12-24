@@ -9,6 +9,14 @@ def to_pk_set(qs):
         pk_set.add(i.pk)
     return pk_set
 
+def slist_to_pkslist(slist):
+    present_symptoms = []
+    for i in slist:
+        recieved = models.Symptom.objects.filter(symptom_text=i)
+        if len(recieved) > 0:
+            present_symptoms.append(recieved[0].pk)
+    return present_symptoms
+
 def sddprocessor(slist): # SET_OF_ITEMS = ALLOWING_SET - PROHIBITING_SET
     """
     Returns a list of doctors.
