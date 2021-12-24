@@ -2,6 +2,7 @@
 from django.db import models
 from django.conf import settings
 
+import json
 # Everything presented here should be improved,
 # i.e. the implementation in prolog had an ability to make such constructions 
 # like "(SYMPTOM_0 and SYMPTOM_1) or (SYMPTOM_2 and SYMPTOM_3 and not SYMPTOM4)"
@@ -58,6 +59,8 @@ class Doctor(models.Model):
 
 class HistoryEntry(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Пользователь")
-    symptoms = models.TextField(verbose_name="Введённые симптомы") 
-    result = models.TextField(verbose_name="Рекомендованные специалисты")
+    symptoms = models.ManyToManyField(Symptom, blank=True, verbose_name="Симптомы") 
+    result = models.ManyToManyField(Doctor, blank=True, verbose_name="Рекомендованные специалисты")
     date = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        get_latest_by = "date"
