@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Symptoms{% endblock %}
+
+{% block content %}
+
+    <section id="testSec">
+        <div class="block">
+    <div class="container-fluid">
+        	<h1>Выбор симптомов</h1>
+        	<div class="dds" id='testBlock'>
+<!--  Добавил -->
+  <div id='Sticman'>
+    <div class='clickItem head'>
+    </div>
+    <div class='body-member member-arm right-arm'>
+      <div class='member-part arm clickItem'></div>
+      <div class='member-part forearm clickItem'></div>
+    </div>
+    <div class='clickItem torso'>
+      <div class='arm-joint'></div>
+      <div class='leg-joint right-joint'></div>
+      <div class='leg-joint left-joint'></div>
+    </div>
+    <div class='body-member member-arm left-arm'>
+      <div class='member-part arm clickItem'></div>
+       <div class='member-part forearm clickItem'></div>
+    </div>
+    <div class='body-member member-leg right-leg'>
+      <div class='member-part leg clickItem'></div>
+      <div class='member-part shin clickItem'></div>
+    </div>
+    <div class='body-member member-leg left-leg'>
+      <div class='member-part leg clickItem'></div>
+      <div class='member-part shin clickItem'></div>
+    </div>
+  </div>
+  <div id = 'dopSection'>
+    <h4>Выберите симптомы</h4>
+    <form action='/' method='POST' id='dop'>
+  </form>
+  </div>
+
+</div>
+ <button class="otprbtn" id="otpr1" type="button">Отправить</button>
+
+<div id='modal' style='display: none'>
+  <div id='overlay'>
+  <div id='window'>
+    </div>
+    </div>
+ </div>
+    </div>
+    </div>
+</section >
+<section id="docSec" style="display: none;">
+    <div class="block">
+    <div class="container-fluid">
+        	<h1>Список докторов</h1>
+        	<div class="dds" id="doklist">
+        	 <ul id="ulSec">
+        	     
+        	 </ul>   
+        </div>
+             </div>
+                 </div>
+</section>
+        	
+
+    <script type="text/javascript">
+
+request("http://docktor-online.ru/sddds/index_json/").then(minibd => {
+  let GLOBAL_DATA = {};
+	const assoc = {
+  "head": "Голова",
+  "torso": "Живот",
+  "dop": "Нелокализованные",
+  "leg": "Ноги",
+  "shin": "Ноги2",
+  "arm": "Руки",
+  "forearm": "Руки2"
+}
+document.getElementById('dop').innerHTML = minibd[assoc['dop']].map((el, i) => `
+      <input type='checkbox' id='${assoc['dop']}${i}' value="${el}">
+      <label for='${assoc['dop']}${i}' class='testLabel'>${el}</label>
+    `).join('\n') 
+function reductFormData(formId) {
+  let data = Object.values(document.forms[formId].elements).filter(el => el.checked).map(el => el.value)
+  if (data.length == 0) return false
+  if (data.length > 1) data.splice(data.length/2, data.length/2)
+  return data
+}
+
+const arr = document.querySelectorAll('.clickItem')
+const modal = document.getElementById('modal')
+arr.forEach((el) => {
+  el.addEventListener('click', (e) => {
+    e.currentTarget.classList.add('checked')
+    const title=assoc[e.currentTarget.classList[1]]
+    const partsList=minibd[title] 
+    displayModal(partsList, title)
+    modal.style.display = 'block'
+  })
+});
+function closeModal(e) {
+  e.preventDefault();
+  modal.style.display = 'none';
+  const title = document.getElementById('modalTitle').textContent
+  if (title !== 'ABOBA') {
+  let data = reductFormData('modalForm')
+  if (data) GLOBAL_DATA[title] = data 
+  }
+  arr.forEach(el => el.classList.remove('checked'))
+  e.currentTarget.removeEventListener('click', closeModal);
+}
+function displayModal(partsList, title) {
+  modal.style.display = 'block'
+  const window = document.getElementById('window')
+  if (title == 'Пусто') {
+         window.innerHTML = `<h3 id='modalTitle'>Выберите симптомы</h3>
+     <img src='http://docktor-online.ru/favicon.ico' width='300px'>
+     <button type='button' id='closeModal'>Принять себя</button>`
+
+  }
+  else {
+  const blocks = partsList.map((el, ind) => `
+  <input type='checkbox' id='modal${ind}' value='${el}'>
+  <label class='testLabel' for='modal${ind}'>${el}</label>
+  `).join('\n')
+  window.innerHTML = `
+  <h3 id='modalTitle'>${title}</h3>
+    <form action='/' method='POST' id='modalForm'>
+      ${blocks}
+    <button type='submit' id='closeModal'>Добавить</button>
+  </form>
+  `}
+  document.getElementById('closeModal').addEventListener('click', closeModal)
+}
+function displayDoc(docList) {
+    console.log(docList)
+  jQuery("#testSec").slideToggle('fast')
+  jQuery("#docSec").slideToggle('fast')
+  document.getElementById('ulSec').innerHTML = docList.dlist.map(el => `<li>${el}</li>`).join("\n")
+}
+
+document.getElementById('otpr1').addEventListener('click', (e) => { 	
+  let data = reductFormData('dop')
+     console.log(data)
+  if (data) GLOBAL_DATA[assoc["dop"]] = data
+     console.log(data)
+  let aboba=Object.values(GLOBAL_DATA).flat()
+     console.log(aboba)
+  document.forms.dop.reset()
+  if (!aboba.length) displayModal([], 'Пусто')
+  else request('http://docktor-online.ru/sddds/odapi/',"POST", {"slist":aboba}).then(docList => displayDoc(docList))
+  GLOBAL_DATA = {}
+})
+
+})
+
+    </script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+		<!-- 		<form action="{% url 'sddds:process_symptoms' %}" method="post">
+
+			{% csrf_token %}
+			<div class="block container-fluid">
+				{% for i in categories %}
+					<details>
+						<summary class="h4">{{ i.category_name }}:</summary>
+						<ul>
+							{% for j in i.symptom_set.all %}
+						<p>{{ j }}</p>
+								<li>
+								<input type="checkbox" name="slist" id="{{ i.category_name }}symptom{{ forloop.counter }}" value="{{ j }}">
+										<label for="{{ i.category_name }}symptom{{ forloop.counter }}">{{ j }}</label>
+								</li> 
+							{% endfor %}
+						</ul>
+					</details>
+				{% endfor %}
+			</div>
+			<input type="submit" class="otprbtn" value="Отправить">
+
+		</form> -->
+		
+{% endblock %}

@@ -7,8 +7,10 @@ from . import views
 
 app_name = 'sddds'
 urlpatterns = [
-    # ~ path('index_json/', views.index, name='index_json'),
-    # ~ path('odapi/', views.odapi, name='odapi'),
+    path('index_json/', views.index_json, name='index_json'),
+    path('odapi/', views.odapi, name='odapi'),
+    path('human/', views.guy, name='guy'),
+    
     
     path('', views.index, name='index'),
     path('symptoms/', views.symptoms, name='symptoms'),

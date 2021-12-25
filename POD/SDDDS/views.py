@@ -108,3 +108,48 @@ def register(request):
     # ~ if request.method == 'POST': # check if the request is POST
         
     # ~ return HttpResponseRedirect(reverse('sddds:index'))
+def add_to_history(user, present_symptoms, result): 
+    new_entry = models.HistoryEntry.objects.create(user=user)
+    for i in present_symptoms:
+        new_entry.symptoms.add(models.Symptom.objects.get(pk=i))
+    for i in result:
+        new_entry.result.add(models.Doctor.objects.get(pk=i))
+
+# Deprecated API
+# we'll fallback to it if i screw up in templates
+def get_symptoms():
+    response = dict()
+    cat_list = list(models.Category.objects.all())
+    symp_names = []
+    for i in cat_list:
+        symp_list = list(i.symptom_set.all())
+        for j in symp_list:
+            symp_names.append(j.symptom_text)
+        response[i.category_name] = symp_names[:]
+        symp_names.clear()
+    return response
+
+def index_json(request):
+    jresponse = get_symptoms()
+    return JsonResponse(jresponse)
+    # returns something like this:
+    # {category:[symptoms], category:[symptoms],...}
+
+def guy(request):
+    return render(request, 'SDDDS/guy.html')
+
+@csrf_exempt
+def odapi(request):
+    if request.method == 'POST': # check if the request is POST
+        json_in = request.readline() # get the JSON
+        json_in = json.loads(json_in)
+        present_symptoms = slist_to_pkslist(json_in['slist'])
+        result = sddprocessor(present_symptoms) # process it
+        dlist = list()
+        for i in result:
+            doc = models.Doctor.objects.get(pk=i)
+            dlist.append(f"{doc.doctor_name} {models.MHI * doc.is_in_MHI} {models.VHI * doc.is_in_VHI}")
+        if request.user.is_authenticated:
+            add_to_history(request.user, present_symptoms, result)
+        return JsonResponse(json.dumps({"dlist" : dlist})) # response with JSON
+    return HttpResponseBadRequest('No JSON data.') # or say the user to be moron

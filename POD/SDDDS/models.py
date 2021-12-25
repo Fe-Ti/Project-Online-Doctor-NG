@@ -60,7 +60,7 @@ class Doctor(models.Model):
         temp_list = list(self.triggering_diseases.all())
         for i in temp_list:
             sa+= i.disease_name + SEPARATOR
-        return self.doctor_name + B + sa[:-2] + E + MHI * self.is_in_MHI + VHI * self.is_in_VHI 
+        return self.doctor_name + B + sa[:-2] + E 
 
 class HistoryEntry(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Пользователь")
