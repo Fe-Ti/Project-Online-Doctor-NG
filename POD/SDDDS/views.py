@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 import json
 
 from . import models
-from .database_edit_views import *
+#from .database_edit_views import *
 from .sddprocessor_lib import to_pk_set, slist_to_pkslist, sddprocessor
 
 DOCTOR_LIST = 'dlist'
@@ -22,6 +22,7 @@ UNKNOWN_ERROR = 'Неизвестно.'
 REGISTRATION_ERROR = "Ошибка при регистрации"
 
 def index(request):
+    #print(models.get_json(models.Symptom))
     return render(request, 'SDDDS/index.html')
 
 def error(request):
@@ -56,16 +57,13 @@ def process_symptoms(request):
 def results(request): # Show the most recent history entry
     if request.user.is_authenticated:
         latest_entry = models.HistoryEntry.objects.filter(user=request.user).latest()
-        doctors = latest_entry.result
-        doctor_names = list()
-        for i in doctor_pks:
-            doctor_names.append(models.Doctor.objects.get(pk=i).doctor_name)
-        return render(request, 'SDDDS/results.html', {'doctor_names':doctors_names})
+        doctors = latest_entry.result.all()
+        return render(request, 'SDDDS/results.html', {'doctors':doctors})
     return HttpResponseRedirect(reverse('sddds:error'))
 
 def anonymous_result(request, result):
     doctor_names = result.split('==')
-    return render(request, 'SDDDS/results.html', {'doctor_names':doctor_names})
+    return render(request, 'SDDDS/results_anonymous.html', {'doctor_names':doctor_names})
 
 def history(request):
     if request.user.is_authenticated:
@@ -99,40 +97,14 @@ def register(request):
             login(request, user)
         else:
             return render(request, 'SDDDS/error_page.html', {'error':REGISTRATION_ERROR})
-    
     return HttpResponseRedirect(reverse('sddds:profile'))
 
-
-# JSON API
-
-# Deprecated
-# we'll fallback to it if i screw up in templates
-# ~ def get_symptoms():
-    # ~ response = dict()
-    # ~ cat_list = list(models.Category.objects.all())
-    # ~ symp_names = []
-    # ~ for i in cat_list:
-        # ~ symp_list = list(i.symptom_set.all())
-        # ~ for j in symp_list:
-            # ~ symp_names.append(j.symptom_text)
-        # ~ response[i.category_name] = symp_names[:]
-        # ~ symp_names.clear()
-    # ~ return response
-
-# ~ def index_json(request):
-    # ~ jresponse = get_symptoms()
-    # ~ return JsonResponse(jresponse)
-    # ~ # returns something like this:
-    # ~ # {category:[symptoms], category:[symptoms],...}
-
-# ~ @csrf_exempt
-# ~ def odapi(request):
+# ~ from django.core import serializers
+# ~ data = serializers.serialize("json", models.Symptom.objects.all())
+# ~ print(data)
+# ~ for deserialized_object in serializers.deserialize("json", data):
+    # ~ deserialized_object.save()
+# ~ def upload_json(request):
     # ~ if request.method == 'POST': # check if the request is POST
-        # ~ json_in = request.readline() # get the JSON
-        # ~ json_in = json.loads(json_in)
-        # ~ present_symptoms = slist_to_pkslist(json_in['slist'])
-        # ~ result = sddprocessor(present_symptoms) # process it
-        # ~ if request.user.is_authenticated:
-            # ~ add_to_history(request.user, present_symptoms, result)
-        # ~ return JsonResponse(result) # response with JSON
-    # ~ return HttpResponseBadRequest('No JSON data.') # or say the user to be moron
+        
+    # ~ return HttpResponseRedirect(reverse('sddds:index'))

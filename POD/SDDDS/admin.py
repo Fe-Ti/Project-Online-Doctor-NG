@@ -23,9 +23,12 @@ class DiseaseAdmin(admin.ModelAdmin):
 class DoctorAdmin(admin.ModelAdmin):
     fieldsets = [
         (None,                  {'fields': ['doctor_name']}),
-        ('Классы заболеваний',  {'fields': ['triggering_diseases']})
+        ('Классы заболеваний',  {'fields': ['triggering_diseases']}),
+        ('Входит в ОМС',  {'fields': ['is_in_MHI']}),
+        ('Входит в ДМС',  {'fields': ['is_in_VHI']})
     ]
-    search_fields = ['doctor_name']
+    search_fields = ['doctor_name', 'triggering_diseases', 'is_in_MHI', 'is_in_VHI']
+    list_display = ['doctor_name', 'is_in_MHI', 'is_in_VHI']
 
 admin.site.register(Category)
 admin.site.register(Symptom, SymptomAdmin)

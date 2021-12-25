@@ -5,8 +5,17 @@
 {% block content %}
 		<h1>Рекомендованные специалисты:</h1>
 		<ul>
-		{% for doc in doctor_names %}
-			<li><label class="doctors">{{ doc }}</label></li>
+		{% for doc in doctors %}
+			<li>
+				<label style="color: #fff; font-size:20px; text-align:center;">{{ doc.doctor_name }}
+					{% if doc.is_in_MHI %}
+						(ОМС)
+					{% endif %}
+					{% if doc.is_in_VHI %}
+						(ДМС)
+					{% endif %}
+				</label>
+			</li>
 		{% endfor %}
 		</ul>
 {% endblock %}

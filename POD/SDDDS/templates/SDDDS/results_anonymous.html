@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Result{% endblock %}
+
+{% block content %}
+		<h1>Рекомендованные специалисты:</h1>
+		<ul>
+		{% for doc in doctor_names %}
+			<li><label class="doctors">{{ doc }}</label></li>
+		{% endfor %}
+		</ul>
+{% endblock %}

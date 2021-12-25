@@ -14,6 +14,11 @@ B = '  ['  # begin
 M = ']  [' # middle
 E = ' ]'      # end
 SEPARATOR = '; '
+MHI = " ОМС"
+VHI = " ДМС"
+
+def get_json(self):
+    return json.dumps(list(self.objects.values()))
 
 class Category(models.Model):
     category_name = models.CharField(max_length=100, verbose_name="Категория симптомов")
@@ -47,15 +52,15 @@ class Disease(models.Model):
 class Doctor(models.Model):
     doctor_name = models.CharField(max_length=100, unique=True, verbose_name="Специалист")
     triggering_diseases = models.ManyToManyField(Disease, blank=True, verbose_name="Лечит", related_name='a_d')
-    
+    is_in_MHI = models.BooleanField(default=True)
+    is_in_VHI = models.BooleanField(default=True)
+
     def __str__(self):
         sa = ' '
         temp_list = list(self.triggering_diseases.all())
         for i in temp_list:
             sa+= i.disease_name + SEPARATOR
-        return self.doctor_name + B + sa[:-2] + E
-
-
+        return self.doctor_name + B + sa[:-2] + E + MHI * self.is_in_MHI + VHI * self.is_in_VHI 
 
 class HistoryEntry(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Пользователь")
@@ -64,3 +69,4 @@ class HistoryEntry(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     class Meta:
         get_latest_by = "date"
+
